@@ -7,6 +7,7 @@ import defaultSettings from './defaults.json';
 export function getSettings() {
     const savedSettings = localStorageManager.getItem('oTranscribe-settings');
     let settings = Object.assign({}, defaultSettings);
+    
     if (savedSettings) {
         settings = Object.assign({}, defaultSettings, savedSettings);
     }
@@ -55,6 +56,8 @@ class Settings extends Component {
     }
 }
 
+
 export function showSettings(el) {
-    render(<Settings />, el);    
+    const component = h(Settings,null);
+    render(component,el);   
 }

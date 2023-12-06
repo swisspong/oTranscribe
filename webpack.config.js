@@ -1,57 +1,92 @@
-var path = require('path');
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
-var CopyWebpackPlugin = require('copy-webpack-plugin');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
+const path = require("path");
+const webpack = require("webpack");
+const devMode = process.env.NODE_ENV !== "production";
 module.exports = {
+  mode: "development",
+  // mode: "production",
   entry: {
-    app: ['./src/index.js'] // This is the main file that gets loaded first; the "bootstrap", if you will.
+    app: "./src/index.js",
+    // Runtime code for hot module replacement
+    hot: "webpack/hot/dev-server.js",
+    // Dev server client for web socket transport, hot and live reload logic
+    client: "webpack-dev-server/client/index.js?hot=true&live-reload=true",
   },
-  output: { // Transpiled and bundled output gets put in `build/bundle.js`.
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'   // Really, you want to upload index.htm and assets/bundle.js
+  output: {
+    filename: "[name].bundle.js",
+    path: path.resolve(__dirname, "dist"),
+    clean: true,
   },
+  devServer: {
+    static: "./dist",
+    hot: false,
+    client: false,
+  },
+  devtool: "inline-source-map",
   module: {
-    loaders: [
+    rules: [
       {
-        test: /\.jsx?$/,
-        exclude: /(node_modules|bower_components)/,
-        loader: 'babel-loader',
-        query: {
-          cacheDirectory: true,
-          presets: ['es2015', 'stage-2']
-        }
-          
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: ["babel-loader"],
       },
-      // This nifty bit of magic right here allows us to load entire JSON files
-      // synchronously using `require`, just like in NodeJS.
       {
         test: /\.json$/,
-        loader: 'json-loader'
+        type: "json",
       },
-      // Extract css files
       {
-          test: /\.scss$/,
-          loader: ExtractTextPlugin.extract(['css-loader','sass-loader'])
-          
-      }
-      
-    ]
-  },
-  // Use the plugin to specify the resulting filename (and add needed behavior to the compiler)
-  plugins: [
-      new ExtractTextPlugin("style.css"),
-      new CopyWebpackPlugin([
-          // {
-          //     from: './src/html/',
-          //     to: './'
-          // }
+        test: /\.scss$/,
+        use: [
           {
-              from: './node_modules/webl10n/l10n.js'
-          }
-      ]),
-      new HtmlWebpackPlugin({
-          template: 'html-loader?interpolate&attrs=img:data-src!./src/index.htm'
-      })
-  ]
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              // your options for mini-css-extract-plugin
+            },
+          },
+          "css-loader",
+          "sass-loader",
+        ],
+      },
+      {
+        resourceQuery: /raw/,
+        type: 'asset/source',
+      }
+    ],
+  },
+  resolve: {
+    extensions: ["*", ".js", ".jsx"],
+  },
+  plugins: [
+    // new ExtractTextPlugin("style.css"),,
+    // new MiniCssExtractPlugin({
+    //   filename: "style.css", // Outputs extracted CSS to a file named "[name].css" (e.g., "app.css")
+    // }),
+    // new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      // filename: "css/[name][contenthash].css", // CSS files will be saved in the "css" folder with hashed filenames for better caching.
+      filename: "style.css",
+    }),
+    new HtmlWebpackPlugin({
+      template: "./src/index.htm",
+    }),
+    new webpack.HotModuleReplacementPlugin(),
+    new CopyPlugin({
+      patterns: [
+        // {
+
+        //     from: './src/html/',
+        //     to: './'
+        // }
+        {
+          from: "./node_modules/webl10n/l10n.js",
+        },
+      ],
+    }),
+    // new CleanWebpackPlugin(),
+  ],
+  optimization: {
+    runtimeChunk: "single",
+  },
 };

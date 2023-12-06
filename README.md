@@ -30,9 +30,9 @@ The `src` folder in this repository only includes the "raw" JavaScript and CSS. 
 
 - Install [Node.js and NPM](https://nodejs.org).
 - Run `npm install` to install dependencies
-- Run `make build_prod` to compile the `dist` folder
+- Run `npm run build` to compile the `dist` folder
 
-For a sourcemap and 'watch-for-changes', run `make build_dev`.
+For a sourcemap and 'watch-for-changes', run `npm run start`.
 
 ### OTR file format
 
@@ -42,16 +42,6 @@ oTranscribe has its own file format (.otr), which is just a JSON file with the f
 * **media**: If available, the name of the last media used
 * **media-source**: If available, a link to the last media used
 * **media-time**: If available, the playtime of the last media used
-
-### Running tests
-
-oTranscribe is not fully tested. There are only a small number of tests, for data migration.
-
-To setup, [install CasperJS](http://docs.casperjs.org/en/latest/installation.html).
-
-Then run a server at the root directory of this repository at `http://localhost:8000`, and on the command line run:
-
-    casperjs test tests/
 
 ### Translations
 
